@@ -1,5 +1,6 @@
 #secret key file
 keys.py
+apikey.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

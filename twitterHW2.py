@@ -13,6 +13,8 @@ import urllib.request as req
 from google.cloud import vision
 from google.cloud.vision import types
 
+os.environ["GOOGLE_APPLICATIONS_CREDENTIALS"] = "apikey.json"
+
 from datetime import datetime
 # datetime object containing current date and time
 now = datetime.now()
@@ -22,16 +24,39 @@ print("now =", now)
 dt_string = now.strftime("%Y-%m-%d")
 print("date = ", dt_string)	
 
+def getImgDescription(file_name):
+	vision_client = vision.ImageAnnotatorClient()
+	print(file_name)						 
+#			Loads the image into memory
+	with io.open(path, 'rb') as image_file:
+		content = image_file.read()
+
+	image = types.Image(content=content)
+
+	response = client.face_detection(image=image)
+	faces = response.face_annotations
+				# Names of likelihood from google.cloud.vision.enums
+	likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
+                   		'LIKELY', 'VERY_LIKELY')
+	print('Faces:')
+
+	for face in faces:
+		print('anger: {}'.format(likelihood_name[face.anger_likelihood]))
+		print('joy: {}'.format(likelihood_name[face.joy_likelihood]))
+		print('surprise: {}'.format(likelihood_name[face.surprise_likelihood]))
+
+		vertices = (['({},{})'.format(vertex.x, vertex.y)
+            for vertex in face.bounding_poly.vertices])
+				
+		print('face bounds: {}'.format(','.join(vertices)))
+
 
 def getMsgs(username):
 	auth = tweepy.OAuthHandler(keys.key, keys.secretKey)
 	auth.set_access_token(keys.accessToken, keys.accessTokenSecret)
 
 	api = tweepy.API(auth)
-#	for tweet in tweepy.Cursor(api.statuses_lookup, id='tweepy').items(10):
-#		print(tweet.text)
-#		print(tweet.created_at)
-
+	num = 0
 	for status in tweepy.Cursor(api.user_timeline,username).items(20):
     
 		tweetDateTime = str(status.created_at)
@@ -39,37 +64,41 @@ def getMsgs(username):
 		if (dateTime[0] == dt_string):
 			print(status.text)
 			try:
-				url = str(status.entities['media'][0]['media_url'])
-				print(url)
-				req.urlretrieve(url, "image_name.jpg")
+				for link in status.entities['media']:
+					num = num +1
+					url = str(link['media_url'])
+					file_name = "image_name" + str(num) + ".jpg"
+
+					print(url)
+					req.urlretrieve(url, file_name)
+
+					getImgDescription(file_name)
+
+					#Instantiates a client
+					
+
+				#	with io.open(file_name, 'rb') as image_file:
+				#		content = image_file.read()
+				#		image = vision_client.image(
+				#		content=content, )
+
+				#	labels = image.detect_labels()
+				#	for label in labels:
+				#		print(label.description)
+
+			# Performs label detection on the image file
+	#				response = client.label_detection(image=image)
+	#				labels = response.label_annotations
+
+	#				print('Labels:')
+	#				for label in labels:
+	#					print(label.description)
 
 			except (NameError, KeyError):        
 				pass
-			else: #where we would do vision ai and all that fun stuff
-				print("not within the past day!")
+#			else: #where we would do vision ai and all that fun stuff
 				#if an image
-			#Instantiates a client
-			client = vision.ImageAnnotatorClient()
-
-			#The name of the image file to annotate
-			file_name = "image_name.jpg"
-
-#			Loads the image into memory
-			with io.open(file_name, 'rb') as image_file:
-			   content = image_file.read()
-
-			image = types.Image(content=content)
-
-			# Performs label detection on the image file
-			response = client.label_detection(image=image)
-			labels = response.label_annotations
-
-			print('Labels:')
-			for label in labels:
-			    print(label.description)
-
-
-
+#				print("")
 
 
 getMsgs("alexfatyga_")
