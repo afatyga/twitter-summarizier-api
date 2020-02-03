@@ -13,23 +13,29 @@ import urllib.request as req
 from google.cloud import vision
 from google.cloud.vision import types
 
-os.environ["GOOGLE_APPLICATIONS_CREDENTIALS"] = "apikey.json"
-
 from datetime import datetime
 # datetime object containing current date and time
 now = datetime.now()
- 
-print("now =", now)
-# dd/mm/YY H:M:S
 dt_string = now.strftime("%Y-%m-%d")
-print("date = ", dt_string)	
 
 def getImgDescription(file_name):
-	vision_client = vision.ImageAnnotatorClient()
-	print(file_name)						 
-#			Loads the image into memory
-	with io.open(path, 'rb') as image_file:
+	client = vision.ImageAnnotatorClient()
+
+#Loads the image into memory
+	file_name = os.path.abspath(file_name)
+	with io.open(file_name, 'rb') as image_file:
 		content = image_file.read()
+	image = types.Image(content=content)
+
+    # Performs label detection on the image file
+	response = client.label_detection(image=image)
+	labels = response.label_annotations
+	print('Labels:')
+	for label in labels:
+	    print(label.description)
+    # [END vision_quickstart]
+
+
 
 	image = types.Image(content=content)
 
@@ -100,5 +106,5 @@ def getMsgs(username):
 				#if an image
 #				print("")
 
-
+#getImgDescription("bio.jpg")
 getMsgs("alexfatyga_")
