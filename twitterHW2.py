@@ -92,6 +92,5 @@ def getMsgs(username):
 				except (NameError, KeyError):        
 					pass
 		return tweets
-	except:
+	except (tweepy.TweepError):
 		return "0"
-
