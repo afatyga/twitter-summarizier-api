@@ -30,31 +30,40 @@ def getImgDescription(file_name):
     # Performs label detection on the image file
 	response = client.label_detection(image=image)
 	labels = response.label_annotations
-	print('Labels:')
+	imgDescrip = "The following is detected: "
+	length = len(labels)
+	count = 0
 	for label in labels:
-	    print(label.description)
-    # [END vision_quickstart]
-
-
+	    imgDescrip = imgDescrip + label.description
+	    count = count + 1
+	    if ( count < (length -1 )):
+	    	imgDescrip = imgDescrip + ", "
+	    if (count == length - 1):
+	    	imgDescrip = imgDescrip + " and "
 
 	image = types.Image(content=content)
-
 	response = client.face_detection(image=image)
 	faces = response.face_annotations
 				# Names of likelihood from google.cloud.vision.enums
+
 	likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
                    		'LIKELY', 'VERY_LIKELY')
-	print('Faces:')
-
+	imgDescrip = imgDescrip 
+	numFace = 0
 	for face in faces:
-		print('anger: {}'.format(likelihood_name[face.anger_likelihood]))
-		print('joy: {}'.format(likelihood_name[face.joy_likelihood]))
-		print('surprise: {}'.format(likelihood_name[face.surprise_likelihood]))
-
-		vertices = (['({},{})'.format(vertex.x, vertex.y)
-            for vertex in face.bounding_poly.vertices])
+		numFace = numFace + 1
+		if (likelihood_name[face.anger_likelihood] == "VERY_LIKELY" or likelihood_name[face.anger_likelihood] == "LIKELY"):
+			imgDescrip = imgDescrip + " Anger is detected in face " + str(numFace) + "." 
+		if (likelihood_name[face.joy_likelihood] == "VERY_LIKELY" or likelihood_name[face.joy_likelihood] == "LIKELY"):
+			imgDescrip = imgDescrip + " Joy is detected in face " + str(numFace) + "."
+		if (likelihood_name[face.surprise_likelihood] == "VERY_LIKELY" or likelihood_name[face.surprise_likelihood] == "LIKELY"):
+			imgDescrip = imgDescrip + " Surprise is detected in face " + str(numFace) + "."
+	#	vertices = (['({},{})'.format(vertex.x, vertex.y)
+     #       for vertex in face.bounding_poly.vertices])
 				
-		print('face bounds: {}'.format(','.join(vertices)))
+	#	print('face bounds: {}'.format(','.join(vertices)))
+
+	print(imgDescrip)
 
 
 def getMsgs(username):
@@ -71,40 +80,16 @@ def getMsgs(username):
 			print(status.text)
 			try:
 				for link in status.entities['media']:
-					num = num +1
 					url = str(link['media_url'])
+					num = num +1
 					file_name = "image_name" + str(num) + ".jpg"
 
-					print(url)
+		#			print(url)
 					req.urlretrieve(url, file_name)
 
 					getImgDescription(file_name)
 
-					#Instantiates a client
-					
-
-				#	with io.open(file_name, 'rb') as image_file:
-				#		content = image_file.read()
-				#		image = vision_client.image(
-				#		content=content, )
-
-				#	labels = image.detect_labels()
-				#	for label in labels:
-				#		print(label.description)
-
-			# Performs label detection on the image file
-	#				response = client.label_detection(image=image)
-	#				labels = response.label_annotations
-
-	#				print('Labels:')
-	#				for label in labels:
-	#					print(label.description)
-
 			except (NameError, KeyError):        
 				pass
-#			else: #where we would do vision ai and all that fun stuff
-				#if an image
-#				print("")
 
-#getImgDescription("bio.jpg")
 getMsgs("alexfatyga_")
