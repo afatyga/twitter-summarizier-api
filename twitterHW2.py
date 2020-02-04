@@ -6,7 +6,6 @@ import tweepy
 
 import io
 import os
-import re
 import urllib.request as req
 
 # Imports the Google Cloud client library
