@@ -58,18 +58,13 @@ def getImgDescription(file_name):
 			imgDescrip = imgDescrip + " Joy is detected in face " + str(numFace) + "."
 		if (likelihood_name[face.surprise_likelihood] == "VERY_LIKELY" or likelihood_name[face.surprise_likelihood] == "LIKELY"):
 			imgDescrip = imgDescrip + " Surprise is detected in face " + str(numFace) + "."
-	#	vertices = (['({},{})'.format(vertex.x, vertex.y)
-     #       for vertex in face.bounding_poly.vertices])
-				
-	#	print('face bounds: {}'.format(','.join(vertices)))
-
-	print(imgDescrip)
+	return imgDescrip
 
 
 def getMsgs(username):
 	auth = tweepy.OAuthHandler(keys.key, keys.secretKey)
 	auth.set_access_token(keys.accessToken, keys.accessTokenSecret)
-
+	tweets = ""
 	api = tweepy.API(auth)
 	num = 0
 	for status in tweepy.Cursor(api.user_timeline,username).items(20):
@@ -77,19 +72,19 @@ def getMsgs(username):
 		tweetDateTime = str(status.created_at)
 		dateTime = tweetDateTime.split()
 		if (dateTime[0] == dt_string):
-			print(status.text)
+#			print(status.text)
+			tweets = tweets + "\n" + status.text
 			try:
 				for link in status.entities['media']:
 					url = str(link['media_url'])
 					num = num +1
 					file_name = "image_name" + str(num) + ".jpg"
 
-		#			print(url)
 					req.urlretrieve(url, file_name)
 
-					getImgDescription(file_name)
+					tweets = tweets + "\n" + getImgDescription(file_name)
+					
 
 			except (NameError, KeyError):        
 				pass
-
-getMsgs("alexfatyga_")
+	return tweets
