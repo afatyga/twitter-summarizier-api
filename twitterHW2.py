@@ -63,7 +63,7 @@ def getImgDescription(file_name):
 def getMsgs(username):
 
 	if not isinstance(username,str):
-		return "0"
+		return 0
 
 	auth = tweepy.OAuthHandler(keys.key, keys.secretKey)
 	auth.set_access_token(keys.accessToken, keys.accessTokenSecret)
@@ -91,6 +91,7 @@ def getMsgs(username):
 
 				except (NameError, KeyError):        
 					pass
-		return tweets
+		print(tweets)
+		return 1
 	except (tweepy.TweepError):
-		return "0"
+		return 0
