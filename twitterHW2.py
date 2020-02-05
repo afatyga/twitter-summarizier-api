@@ -43,7 +43,7 @@ def getImgDescription(file_name):
 	image = types.Image(content=content)
 	response = client.face_detection(image=image)
 	faces = response.face_annotations
-				# Names of likelihood from google.cloud.vision.enums
+	# Names of likelihood from google.cloud.vision.enums
 
 	likelihood_name = ('UNKNOWN', 'VERY_UNLIKELY', 'UNLIKELY', 'POSSIBLE',
                    		'LIKELY', 'VERY_LIKELY')
@@ -61,29 +61,37 @@ def getImgDescription(file_name):
 
 
 def getMsgs(username):
+
+	if not isinstance(username,str):
+		return 0
+
 	auth = tweepy.OAuthHandler(keys.key, keys.secretKey)
 	auth.set_access_token(keys.accessToken, keys.accessTokenSecret)
 	tweets = ""
 	api = tweepy.API(auth)
 	num = 0
-	for status in tweepy.Cursor(api.user_timeline,username).items(20):
+	try:
+		for status in tweepy.Cursor(api.user_timeline,username).items(20):
     
-		tweetDateTime = str(status.created_at)
-		dateTime = tweetDateTime.split()
-		if (dateTime[0] == dt_string):
-#			print(status.text)
-			tweets = tweets + "\n" + status.text
-			try:
-				for link in status.entities['media']:
-					url = str(link['media_url'])
-					num = num +1
-					file_name = "image_name" + str(num) + ".jpg"
+			tweetDateTime = str(status.created_at)
+			dateTime = tweetDateTime.split()
+			if (dateTime[0] == dt_string):
+	#		print(status.text)
+				tweets = tweets + "\n" + status.text
+				try:
+					for link in status.entities['media']:
+						url = str(link['media_url'])
+						num = num +1
+						file_name = "image_name" + str(num) + ".jpg"
 
-					req.urlretrieve(url, file_name)
+						req.urlretrieve(url, file_name)
 
-					tweets = tweets + "\n" + getImgDescription(file_name)
+						tweets = tweets + "\n" + getImgDescription(file_name)
 					
 
-			except (NameError, KeyError):        
-				pass
-	return tweets
+				except (NameError, KeyError):        
+					pass
+		print(tweets)
+		return 1
+	except (tweepy.TweepError):
+		return 0
