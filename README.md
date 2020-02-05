@@ -24,8 +24,8 @@ I found myself having to create a new key for Google Vision each day which was t
 
 # Examples of Use
 My own twitter handle on 2/4/2020: <br>
-<img src="termina.png" width="55%" />
-<img src="twitterEx.png" width="55%" />
-<br> Another twitter handle at use on 2/2/2020 <br>
-<img src="dogterminal.png" width="55%" />
-<img src="dogex.png" width="55%" />
+<img src="termina.PNG" width="55%" />
+<img src="twitterEx.PNG" width="55%" />
+<br> Another twitter handle at use on 2/2/2020 <br> <br>
+<img src="dogterminal.PNG" width="55%" />
+<img src="dogex.PNG" width="55%" />
