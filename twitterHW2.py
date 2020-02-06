@@ -1,28 +1,29 @@
 #EC500 HW 2
 #Alex Fatyga
 
-import keys
-import tweepy
+import keys #holds the keys for using tweepy
+import tweepy #twitter api
 
 import io
 import os
-import urllib.request as req
-import json
+import urllib.request as req #to convert the url into an image file
+import json #to output a json file for the user
 
 # Imports the Google Cloud client library
-from google.cloud import vision
+from google.cloud import vision 
 from google.cloud.vision import types
 
 from datetime import datetime
 # datetime object containing current date and time
+
 now = datetime.now()
 dt_string = now.strftime("%Y-%m-%d")
 
+def getImgDescription(file_name): #takes in the name of the created image file and returns a tuple of the image labels and emotions detected
 
-def getImgDescription(file_name):
-	client = vision.ImageAnnotatorClient()
+	client = vision.ImageAnnotatorClient() #using google vision
 
-#Loads the image into memory
+	#Loads the image into memory
 	file_name = os.path.abspath(file_name)
 	with io.open(file_name, 'rb') as image_file:
 		content = image_file.read()
@@ -31,9 +32,11 @@ def getImgDescription(file_name):
     # Performs label detection on the image file
 	response = client.label_detection(image=image)
 	labels = response.label_annotations
+	
 	imgDescrip = "The following is detected: "
 	length = len(labels)
 	count = 0
+	
 	for label in labels:
 	    imgDescrip = imgDescrip + label.description
 	    count = count + 1
@@ -42,6 +45,7 @@ def getImgDescription(file_name):
 	    if (count == length - 1):
 	    	imgDescrip = imgDescrip + " and "
 	imgDescrip = imgDescrip + "."
+
 	image = types.Image(content=content)
 	response = client.face_detection(image=image)
 	faces = response.face_annotations
@@ -62,10 +66,10 @@ def getImgDescription(file_name):
 
 	return imgDescrip, faceDet
 
-
+#first function, takes in a string of the twitter username, creates a json file of the output and returns a 1 or 0 to indicate success or failure
 def getMsgs(username):
 
-	if not isinstance(username,str): #can only input string
+	if not isinstance(username,str): #can only take in a string
 		return 0
 	auth = tweepy.OAuthHandler(keys.key, keys.secretKey) #using key from keys file - blank in github
 	auth.set_access_token(keys.accessToken, keys.accessTokenSecret)
@@ -75,27 +79,28 @@ def getMsgs(username):
 	#use the following 2 lines for writing to json
 	data = {}
 	data['tweets'] = []
+
 	try:	#will be an error if the username is valid
 		for status in tweepy.Cursor(api.user_timeline,username).items(20): #gets past 20 tweets
 			    
 			tweetDateTime = str(status.created_at)
 			dateTime = tweetDateTime.split()
-			if (dateTime[0] == dt_string):
-				#print(status.text)
-				#print(status.user.screen_name)
-				tweets = tweets + "\n" + status.text
-				try:
+			if (dateTime[0] == dt_string): #will only get tweets from the past day
+
+				tweets = tweets + "\n" + status.text # will also print tweets and google vision detection to terminal
+				try: #will only do the next line if there is an image
 					for link in status.entities['media']:
 						url = str(link['media_url'])
 						num = num +1
 						file_name = "image_name" + str(num) + ".jpg"
 
 						req.urlretrieve(url, file_name)
-						labels, faceDet = getImgDescription(file_name)
+						labels, faceDet = getImgDescription(file_name) #gets labels and face detection info
 
 						tweets = tweets + "\n" + labels + faceDet
-						if (faceDet == ""):
-							data['tweets'].append({
+
+						if (faceDet == ""): #if there were no faces detected -> don't add facedet to the json
+							data['tweets'].append({ #appending to json
 								'user': str(status.user.screen_name),
 								'created at': str(status.created_at),
 								'text': str(status.text),
@@ -104,7 +109,7 @@ def getMsgs(username):
 								}
 							})
 						else:
-							data['tweets'].append({
+							data['tweets'].append({ #appending to json
 								'user': str(status.user.screen_name),
 								'created at': str(status.created_at),
 								'text': str(status.text),
@@ -115,17 +120,17 @@ def getMsgs(username):
 
 							})
 
-				except (NameError, KeyError):  
-					print("ah no image")      
+				except (NameError, KeyError): #if there's no image, append just the text and etc
 					data['tweets'].append({
 						'user': str(status.user.screen_name),
 						'created at': str(status.created_at),
 						'text': str(status.text) 
 					})
-#		print(tweets)
-#		print(data)
-		with open ('tweets.json', 'w') as outfile:
+
+		with open ('tweets.json', 'w') as outfile: #actually adding to the json
 			json.dump(data, outfile)
-		return 1
+		print(tweets)
+		return 1 # a success
 	except (tweepy.TweepError):
-		return 0
+		return 0 #means the username was not valid!
+
