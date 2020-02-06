@@ -31,10 +31,10 @@ At first, I was having using issues with using Google Vision but I realized that
 
 # Examples of Use
 My own twitter handle on 2/4/2020: <br>
-<img src="termina.PNG" width="55%" />
-<img src="twitterEx.PNG" width="55%" />
+<img src="termina.PNG" width="55%" /> <br>
+<img src="twitterEx.PNG" width="55%" /> <br>
 Additionally, the tweets.json file goes accordingly with this example and can be examined to see how I format the output into a json file
 <br> <br>
 <br> Another twitter handle at use on 2/2/2020 <br> <br>
-<img src="dogterminal.PNG" width="55%" />
-<img src="dogex.PNG" width="55%" />
+<img src="dogterminal.PNG" width="55%" /> <br>
+<img src="dogex.PNG" width="55%" /> 
