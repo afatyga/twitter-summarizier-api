@@ -16,7 +16,7 @@ from google.cloud.vision import types
 from datetime import datetime
 # datetime object containing current date and time
 now = datetime.now()
-dt_string = now.strftime("%Y-%m-04")
+dt_string = now.strftime("%Y-%m-%d")
 
 
 def getImgDescription(file_name):
@@ -94,24 +94,34 @@ def getMsgs(username):
 						labels, faceDet = getImgDescription(file_name)
 
 						tweets = tweets + "\n" + labels + faceDet
-						data['tweets'].append({
-						'user': str(status.user.screen_name),
-						'created at': str(status.created_at),
-						'text': str(status.text),
-						'media': {
-							'labels': labels,
-							'emotions detected': faceDet
-						}
+						if (faceDet == ""):
+							data['tweets'].append({
+								'user': str(status.user.screen_name),
+								'created at': str(status.created_at),
+								'text': str(status.text),
+								'media': {
+									'labels': labels
+								}
+							})
+						else:
+							data['tweets'].append({
+								'user': str(status.user.screen_name),
+								'created at': str(status.created_at),
+								'text': str(status.text),
+								'media': {
+									'labels': labels,
+									'emotions detected': faceDet
+								}
 
-						})
+							})
 
-				except (NameError, KeyError):        
-					pass
+				except (NameError, KeyError):  
+					print("ah no image")      
 					data['tweets'].append({
 						'user': str(status.user.screen_name),
 						'created at': str(status.created_at),
 						'text': str(status.text) 
-						})
+					})
 #		print(tweets)
 #		print(data)
 		with open ('tweets.json', 'w') as outfile:
@@ -119,5 +129,3 @@ def getMsgs(username):
 		return 1
 	except (tweepy.TweepError):
 		return 0
-
-getMsgs("alexfatyga_")
